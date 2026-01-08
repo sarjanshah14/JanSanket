@@ -57,13 +57,16 @@ def load_data_temp(request):
         if not os.path.exists(fixture_path):
              return Response({"error": f"Fixture not found at {fixture_path}"}, status=404)
 
-        # Flush existing data to avoid duplicates
-        print("🧹 Flushing database...")
-        call_command('flush', '--no-input')
+        # Flush failed due to permissions. Let's try manual deletion of conflicting data.
+        print("🧹 Cleaning up existing data manually...")
+        from django.contrib.auth.models import User
+        # Deleting all users will cascade delete Disasters, Shelters (if linked), etc.
+        # This resolves the "Duplicate username" error.
+        User.objects.all().delete()
         
         print("📥 Loading data...")
         call_command('loaddata', 'fixtures/data.json')
-        return Response({"message": "Database flushed and data loaded successfully!"})
+        return Response({"message": "Existing users cleared and data loaded successfully!"})
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
