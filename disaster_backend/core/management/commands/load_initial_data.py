@@ -19,6 +19,11 @@ class Command(BaseCommand):
                 cursor.execute("DROP TABLE IF EXISTS bookings_review CASCADE")
                 cursor.execute("DROP TABLE IF EXISTS bookings_payment CASCADE")
                 cursor.execute("DROP TABLE IF EXISTS bookings_profile CASCADE")
+                
+                # Also drop other legacy apps like 'payments' found in error logs
+                cursor.execute("DROP TABLE IF EXISTS payments_payment CASCADE")
+                cursor.execute("DROP TABLE IF EXISTS payments_subscription CASCADE")
+                cursor.execute("DROP TABLE IF EXISTS payments_order CASCADE")
 
                 # 2. Force delete users with CASCADE
                 self.stdout.write("🗑️  Deleting all existing users...")
