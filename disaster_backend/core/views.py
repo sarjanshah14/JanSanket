@@ -35,64 +35,6 @@ def create_superuser_temp(request):
         else:
             User.objects.create_superuser(username=username, email=email, password=password)
             return Response({"message": f"Superuser {username} created successfully!"}, status=status.HTTP_201_CREATED)
-    except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-from django.core.management import call_command
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def load_data_temp(request):
-    """
-    Temporary view to load fixtures when shell access is not available.
-    Usage: POST /api/load-data/ with { "secret": "temp_secret_123" }
-    """
-    secret = request.data.get('secret')
-    if secret != "temp_secret_123":
-        return Response({"error": "Invalid secret"}, status=status.HTTP_403_FORBIDDEN)
-
-    try:
-        # Check if file exists to be sure
-        fixture_path = os.path.join(settings.BASE_DIR, 'fixtures', 'data.json')
-        if not os.path.exists(fixture_path):
-             return Response({"error": f"Fixture not found at {fixture_path}"}, status=404)
-
-        # Version 3.0: Dynamic Find and Destroy
-        print("🧹 Operation: Clean Slate 3.0")
-        from django.db import connection
-        
-        dropped_tables = []
-        with connection.cursor() as cursor:
-            # 1. Find ALL tables starting with 'bookings_'
-            cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_name LIKE 'bookings_%'")
-            rows = cursor.fetchall()
-            
-            for row in rows:
-                table_name = row[0]
-                print(f"💥 Dropping legacy table: {table_name}")
-                cursor.execute(f"DROP TABLE IF EXISTS \"{table_name}\" CASCADE")
-                dropped_tables.append(table_name)
-
-            # 2. Force delete users with CASCADE
-            cursor.execute("DELETE FROM auth_user CASCADE")
-            
-            # 3. Clear core tables
-            cursor.execute("DELETE FROM core_disaster CASCADE")
-            cursor.execute("DELETE FROM core_shelter CASCADE")
-
-        print("📥 Loading data...")
-        call_command('loaddata', 'fixtures/data.json')
-        
-        return Response({
-            "message": "SUCCESS! DB Cleaned & Reloaded.",
-            "dropped_tables": dropped_tables,
-            "version": "3.0 (Dynamic Drop)"
-        })
-    except Exception as e:
-        return Response({"error": str(e), "version": "3.0"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 from .models import Disaster,Shelter,Volunteer,ContactMessage,PredictedValues
 import requests
