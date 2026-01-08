@@ -153,10 +153,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "https://disaster-reporting-frontend.vercel.app",  # Add actual vercel domain if known, else usage wildcard in logic or user provided instructions
+    "https://jan-sanket.vercel.app",
+    "https://disaster-reporting-frontend.vercel.app",
 ]
-# User specified wildcards: https://*.vercel.app, https://*.onrender.com 
-# Django CORS headers doesn't support wildcards in list easily without regex setting, but user said "CORS_ALLOWED_ORIGINS = [...]"
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "https://jan-sanket.vercel.app",
+    "https://disaster-reporting-frontend.vercel.app",
+    "https://jansanket-bi8n.onrender.com",
+]
 # Let's try to interpret user instruction. 
 
 CSRF_TRUSTED_ORIGINS = [
