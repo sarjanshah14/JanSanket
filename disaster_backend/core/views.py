@@ -57,27 +57,39 @@ def load_data_temp(request):
         if not os.path.exists(fixture_path):
              return Response({"error": f"Fixture not found at {fixture_path}"}, status=404)
 
-        # Flush failed due to permissions. Manual delete failed due to foreign keys from old apps.
-        # Using RAW SQL to force cleanup of "parking/booking" leftovers.
-        print("🧹 Nuclear cleanup initiated...")
+        # Version 3.0: Dynamic Find and Destroy
+        print("🧹 Operation: Clean Slate 3.0")
         from django.db import connection
+        
+        dropped_tables = []
         with connection.cursor() as cursor:
-            # 1. Drop the blocking tables entirely. 
-            # This is safe because you said this DB is reused and these are old tables.
-            cursor.execute("DROP TABLE IF EXISTS bookings_booking CASCADE")
-            cursor.execute("DROP TABLE IF EXISTS bookings_review CASCADE") # Likely exists too
-            cursor.execute("DROP TABLE IF EXISTS bookings_payment CASCADE") # Likely exists too
+            # 1. Find ALL tables starting with 'bookings_'
+            cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_name LIKE 'bookings_%'")
+            rows = cursor.fetchall()
+            
+            for row in rows:
+                table_name = row[0]
+                print(f"💥 Dropping legacy table: {table_name}")
+                cursor.execute(f"DROP TABLE IF EXISTS \"{table_name}\" CASCADE")
+                dropped_tables.append(table_name)
 
-            # 2. Force delete users with CASCADE to wipe out anything else linked to them
+            # 2. Force delete users with CASCADE
             cursor.execute("DELETE FROM auth_user CASCADE")
             
-            # 3. Also clear core tables just in case
+            # 3. Clear core tables
             cursor.execute("DELETE FROM core_disaster CASCADE")
             cursor.execute("DELETE FROM core_shelter CASCADE")
-        
+
         print("📥 Loading data...")
         call_command('loaddata', 'fixtures/data.json')
-        return Response({"message": "Old 'bookings' tables dropped, DB cleaned, and data loaded!"})
+        
+        return Response({
+            "message": "SUCCESS! DB Cleaned & Reloaded.",
+            "dropped_tables": dropped_tables,
+            "version": "3.0 (Dynamic Drop)"
+        })
+    except Exception as e:
+        return Response({"error": str(e), "version": "3.0"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
