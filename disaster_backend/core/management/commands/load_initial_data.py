@@ -13,14 +13,12 @@ class Command(BaseCommand):
         
         try:
             with connection.cursor() as cursor:
-                # 1. Find ALL tables starting with 'bookings_' (Legacy Parking App)
-                cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_name LIKE 'bookings_%'")
-                rows = cursor.fetchall()
-                
-                for row in rows:
-                    table_name = row[0]
-                    self.stdout.write(f"💥 Dropping legacy table: {table_name}")
-                    cursor.execute(f"DROP TABLE IF EXISTS \"{table_name}\" CASCADE")
+                # 1. Blindly DROP the legacy parking tables that are blocking us
+                # (We don't search for them anymore, we just nuke the known ones)
+                cursor.execute("DROP TABLE IF EXISTS bookings_booking CASCADE")
+                cursor.execute("DROP TABLE IF EXISTS bookings_review CASCADE")
+                cursor.execute("DROP TABLE IF EXISTS bookings_payment CASCADE")
+                cursor.execute("DROP TABLE IF EXISTS bookings_profile CASCADE")
 
                 # 2. Force delete users with CASCADE
                 self.stdout.write("🗑️  Deleting all existing users...")
