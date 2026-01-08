@@ -38,6 +38,31 @@ def create_superuser_temp(request):
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+from django.core.management import call_command
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def load_data_temp(request):
+    """
+    Temporary view to load fixtures when shell access is not available.
+    Usage: POST /api/load-data/ with { "secret": "temp_secret_123" }
+    """
+    secret = request.data.get('secret')
+    if secret != "temp_secret_123":
+        return Response({"error": "Invalid secret"}, status=status.HTTP_403_FORBIDDEN)
+
+    try:
+        # Check if file exists to be sure
+        fixture_path = os.path.join(settings.BASE_DIR, 'fixtures', 'data.json')
+        if not os.path.exists(fixture_path):
+             return Response({"error": f"Fixture not found at {fixture_path}"}, status=404)
+
+        call_command('loaddata', 'fixtures/data.json')
+        return Response({"message": "Data loaded successfully!"})
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 from .models import Disaster,Shelter,Volunteer,ContactMessage,PredictedValues
 import requests
 import os 
