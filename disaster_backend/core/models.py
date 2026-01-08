@@ -22,7 +22,8 @@ class Disaster(models.Model):
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
     address=models.CharField(max_length=200)
-    image = models.ImageField(upload_to='disaster_images/', blank=True, null=True)
+    display_address = models.CharField(max_length=200, blank=True, null=True) # Renamed to avoid confusion if needed, or just keep address. 
+    # image field removed
     is_verified = models.BooleanField(default=False)
     reported_by = models.ForeignKey(User, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -48,12 +49,7 @@ class Shelter(models.Model):
     def __str__(self):
         return self.name
     
-class ShelterImage(models.Model):
-    shelter = models.ForeignKey(Shelter, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='shelter_images/')
-
-    def __str__(self):
-        return f"Image for {self.shelter.name}"
+# ShelterImage model removed
 
 class Volunteer(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,null=True, blank=True)

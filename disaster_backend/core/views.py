@@ -23,7 +23,7 @@ from django.views.decorators.http import require_POST, require_GET
 
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 def geocode_address(address):
-    key = 'ee92ecdd73ea4e38b10bd8553e5f0856'
+    key = os.getenv('OPENCAGE_API_KEY', 'ee92ecdd73ea4e38b10bd8553e5f0856')
     url = f"https://api.opencagedata.com/geocode/v1/json"
     params = {'q': address, 'key': key}
     r = requests.get(url, params=params)
@@ -57,6 +57,13 @@ def report_disaster(request):
         return Response({"error": "Could not locate address."}, status=400)
 
     data = request.data.copy()
+    
+    # Discard image if present
+    if 'image' in request.FILES:
+        _ = request.FILES['image']
+    if 'image' in data:
+        del data['image'] # Remove from data so serializer doesn't complain (though it's not in model anymore)
+
     data['latitude'] = lat
     data['longitude'] = lon
 
@@ -281,8 +288,8 @@ def create_checkout_session(request):
                     'quantity': 1,
                 }],
                 mode='subscription',
-                success_url='http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}',
-                cancel_url='http://localhost:3000/pricing',
+                success_url=f'{settings.FRONTEND_URL}/success?session_id={{CHECKOUT_SESSION_ID}}',
+                cancel_url=f'{settings.FRONTEND_URL}/pricing',
                 customer_email=customer_email,
                 metadata={
                     'plan_id': plan_id,

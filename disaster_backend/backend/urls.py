@@ -9,5 +9,4 @@ urlpatterns = [
     # path('', include('core.urls')),  # ✅ Include your app routes
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Media URL serving removed

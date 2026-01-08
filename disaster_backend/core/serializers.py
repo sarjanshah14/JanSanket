@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Disaster,Shelter,Volunteer,ContactMessage,ShelterImage,PredictedValues
+from .models import Disaster,Shelter,Volunteer,ContactMessage,PredictedValues
 from django.contrib import admin
 
 
@@ -37,10 +37,7 @@ class DisasterSerializer(serializers.ModelSerializer):
         return obj.reported_by.username
 
 
-class ShelterImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ShelterImage
-        fields = ['id', 'image']
+# ShelterImageSerializer removed
 
 
 class PredictedValuesSerializer(serializers.ModelSerializer):
@@ -50,7 +47,7 @@ class PredictedValuesSerializer(serializers.ModelSerializer):
 
 
 class ShelterSerializer(serializers.ModelSerializer):
-    images = ShelterImageSerializer(many=True, read_only=True)
+    # images = ShelterImageSerializer(many=True, read_only=True) - Removed
     predictions = PredictedValuesSerializer(read_only=True)
 
     class Meta:

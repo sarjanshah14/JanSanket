@@ -13,22 +13,21 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import dj_database_url
 load_dotenv()
-STRIPE_PUBLISHABLE_KEY = 'pk_test_51Rtd171yRBtzWAxgUOmQdUViaHo1srTcLlXy54GbArsUVkXkF49bJWsiJFHKqWy7dADyhttYNACtL7c4ZUSxA5Z300ayMcDTeC'
-STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY', 'pk_test_51Rtd171yRBtzWAxgUOmQdUViaHo1srTcLlXy54GbArsUVkXkF49bJWsiJFHKqWy7dADyhttYNACtL7c4ZUSxA5Z300ayMcDTeC')
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY") # Ensure this is set in env
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-FRONTEND_URL = 'http://localhost:3000'
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-x#d@+r%)$yev@)6_1=^yxt^8cq8!kx%a9c6qwsohm81&&jtu8n'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-x#d@+r%)$yev@)6_1=^yxt^8cq8!kx%a9c6qwsohm81&&jtu8n')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
@@ -50,12 +49,12 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'core',
-    'channels',
 ]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -75,7 +74,7 @@ REST_FRAMEWORK = {
 }
 
 
-ASGI_APPLICATION = 'backend.asgi.application'
+# ASGI_APPLICATION = 'backend.asgi.application'
 
 TEMPLATES = [
     {
@@ -99,10 +98,10 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
+        conn_max_age=600
+    )
 }
 
 
@@ -141,18 +140,40 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"  # For dev, later Redis
-    },
-}
+# CHANNEL_LAYERS removed
+
+CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://127.0.0.1:3000",
+    "https://disaster-reporting-frontend.vercel.app",  # Add actual vercel domain if known, else usage wildcard in logic or user provided instructions
+]
+# User specified wildcards: https://*.vercel.app, https://*.onrender.com 
+# Django CORS headers doesn't support wildcards in list easily without regex setting, but user said "CORS_ALLOWED_ORIGINS = [...]"
+# Let's try to interpret user instruction. 
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "https://disaster-reporting-frontend.vercel.app",
+]
+
+# For now, I will use a helper to allow patterns if needed or just specific known ones + localhost. 
+# But let's stick to user request literal if possible or safe defaults.
+# User requested:
+# CORS_ALLOWED_ORIGINS = [ "http://localhost:3000", "https://*.vercel.app", "https://*.onrender.com" ]
+# Note: Django CORS headers `CORS_ALLOWED_ORIGINS` expects full URIs. Wildcards like `*.vercel.app` require `CORS_ALLOWED_ORIGIN_REGEXES`.
+# However, user instruction specifically laid out list. I will assume they might want regex or just specific. 
+# But the prompt says "CORS_ALLOWED_ORIGINS = [...]" with wildcards. This might be a user simplification.
+# I will implement `CORS_ALLOWED_ORIGIN_REGEXES` for the wildcards to be safe and `CORS_ALLOWED_ORIGINS` for specific.
+
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://.*\.vercel\.app$",
+    r"^https://.*\.onrender\.com$",
 ]
