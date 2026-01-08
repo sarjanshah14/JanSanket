@@ -8,9 +8,9 @@ from django.http import JsonResponse
 from .models import Disaster,Shelter,Volunteer,ContactMessage,PredictedValues
 import requests
 import os 
-import joblib
-import numpy as np
-import pandas as pd
+# import joblib
+# import numpy as np
+# import pandas as pd
 import stripe
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
