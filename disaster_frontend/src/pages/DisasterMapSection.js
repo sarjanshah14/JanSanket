@@ -69,10 +69,15 @@ const DisasterMapSection = () => {
   const [mapReady, setMapReady] = useState(false);
 
   useEffect(() => {
-    axios
-      .get("http://127.0.0.1:8000/api/disasters/")
-      .then((res) => setDisasters(res.data))
-      .catch((err) => console.error("Error fetching disasters:", err));
+    const fetchDisasters = () => {
+      axios
+        .get(`${process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'}/api/disasters/`)
+        .then((res) => setDisasters(res.data))
+        .catch((err) => console.error("Error fetching disasters:", err));
+    }
+    fetchDisasters();
+    const interval = setInterval(fetchDisasters, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -161,10 +166,10 @@ const DisasterMapSection = () => {
                                 disaster.type.toLowerCase() === "fire"
                                   ? "#ffcccc"
                                   : disaster.type.toLowerCase() === "flood"
-                                  ? "#cce5ff"
-                                  : disaster.type.toLowerCase() === "earthquake"
-                                  ? "#ffe0b2"
-                                  : "#e0e0e0",
+                                    ? "#cce5ff"
+                                    : disaster.type.toLowerCase() === "earthquake"
+                                      ? "#ffe0b2"
+                                      : "#e0e0e0",
                               color: "#333",
                               padding: "4px 8px",
                               borderRadius: "6px",

@@ -59,15 +59,27 @@ const ContactPage = ({ darkMode }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-  
+
     if (!validateForm()) return
-  
+
     setIsSubmitting(true)
-  
+
     try {
-      await axios.post("http://127.0.0.1:8000/api/contact/", formData)
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'}/api/contact/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
+
       alert("Message sent successfully! We'll get back to you within 24 hours.")
-  
+
       setFormData({
         name: "",
         email: "",
@@ -287,7 +299,7 @@ const ContactPage = ({ darkMode }) => {
           <div className="col-lg-4 mb-5">
             <div className="animate-slide-in-right">
               {/* Contact Methods */}
-              <div className="card border-0 shadow-lg mb-4" style={{height:'580px'}}>
+              <div className="card border-0 shadow-lg mb-4" style={{ height: '580px' }}>
                 <div className="card-header border-bottom p-4 bg-primary">
                   <h5 className="mb-0 text-white fs-4">📞 Get in Touch</h5>
                 </div>
@@ -315,7 +327,7 @@ const ContactPage = ({ darkMode }) => {
                   ))}
                 </div>
               </div>
-              
+
             </div>
           </div>
         </div>

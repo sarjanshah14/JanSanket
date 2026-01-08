@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 
 function NotificationBell() {
@@ -6,24 +7,36 @@ function NotificationBell() {
 
   const bellRef = useRef();
 
-  useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8000/ws/disasters/");
-
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === "disaster_alert") {
-        const newNotification = {
-          id: data.data.id,
-          type: data.data.type,
-          address: data.data.address,
-          message: data.message,
-          timestamp: new Date(),
-        };
-        setNotifications((prev) => [newNotification, ...prev]);
+  // Function to fetch initial notifications
+  const fetchInitialNotifications = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'} /api/disasters / `);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status} `);
       }
-    };
+      const data = await response.json();
+      // Assuming the API returns an array of disaster objects
+      // Map them to the notification format
+      const initialNotes = data.map(disaster => ({
+        id: disaster.id,
+        type: disaster.type,
+        address: disaster.address,
+        message: disaster.description, // Assuming 'description' is the message field
+        timestamp: new Date(disaster.created_at), // Assuming 'created_at' is the timestamp
+      }));
+      setNotifications(initialNotes.reverse()); // Display newest first
+    } catch (error) {
+      console.error("Error fetching initial notifications:", error);
+    }
+  };
 
-    return () => ws.close();
+  useEffect(() => {
+    // Fetch initial notifications
+    fetchInitialNotifications();
+
+    // Polling for new notifications every 30 seconds
+    const interval = setInterval(fetchInitialNotifications, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   // Close dropdown if clicked outside

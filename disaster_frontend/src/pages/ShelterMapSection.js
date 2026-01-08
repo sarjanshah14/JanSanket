@@ -56,7 +56,7 @@ const ShelterMapSection = () => {
 
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:8000/api/shelters/")
+      .get(`${process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'}/api/shelters/`)
       .then((res) => setShelters(res.data))
       .catch((err) => console.error("Error fetching Shelters:", err));
   }, []);
@@ -158,13 +158,13 @@ const ShelterMapSection = () => {
                         <div style={{ fontSize: "0.85rem", marginBottom: "6px", color: "#444" }}>
                           📍 <strong>Location:</strong> {shelter.location || "Unknown"}
                         </div>
-                        
+
                         {/* Status / Description */}
                         <div style={{ fontSize: "0.85rem", color: "#444" }}>
                           📋 <strong>Status:</strong> {shelter.description || "No details"}
                         </div>
                         <div style={{ fontSize: "0.85rem", marginBottom: "6px", color: "#444" }}>
-                          🍽 <strong>Food Needed:</strong> { shelter.predictions?.food_needed ?? 0 } Meals
+                          🍽 <strong>Food Needed:</strong> {shelter.predictions?.food_needed ?? 0} Meals
                         </div>
                         <div style={{ fontSize: "0.85rem", marginBottom: "6px", color: "#444" }}>
                           💧 <strong>Water Required:</strong> {shelter.predictions?.water_required ?? 0} L

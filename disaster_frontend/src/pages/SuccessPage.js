@@ -29,11 +29,14 @@ const SuccessPage = () => {
       }
 
       try {
-        const response = await axios.get('http://localhost:8000/api/verify-payment/', {
-          params: { session_id: sessionId }
-        });
+        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'}/api/verify-payment/?session_id=${sessionId}`);
+        const data = await response.json();
 
-        if (response.data.status === 'success') {
+        if (!response.ok) {
+          throw new Error(data.message || 'Network response was not ok');
+        }
+
+        if (data.status === 'success') {
           setState({
             loading: false,
             error: null,
@@ -100,12 +103,12 @@ const SuccessPage = () => {
   return (
     <div className="success-wrapper">
       {/* 🎉 Confetti only once */}
-      <Confetti 
-        width={width} 
-        height={height} 
-        numberOfPieces={250} 
-        recycle={false} 
-        colors={['#dc3545','#ffc107','#ffffff']} 
+      <Confetti
+        width={width}
+        height={height}
+        numberOfPieces={250}
+        recycle={false}
+        colors={['#dc3545', '#ffc107', '#ffffff']}
       />
 
       <Card className="shadow-lg border-0 rounded-4 overflow-hidden w-100 success-card">

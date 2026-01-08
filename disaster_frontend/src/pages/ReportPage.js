@@ -13,6 +13,7 @@ const ReportPage = ({ darkMode }) => {
     image: null,
   })
   const [errors, setErrors] = useState({})
+  const [imagePreview, setImagePreview] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const navigate = useNavigate()
 
@@ -32,7 +33,13 @@ const ReportPage = ({ darkMode }) => {
   const handleInputChange = (e) => {
     const { name, value, files } = e.target
     if (name === "image") {
-      setFormData((prev) => ({ ...prev, [name]: files[0] }))
+      const file = files[0]
+      setFormData((prev) => ({ ...prev, [name]: file }))
+      if (file) {
+        setImagePreview(URL.createObjectURL(file))
+      } else {
+        setImagePreview(null)
+      }
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }))
     }
@@ -74,7 +81,7 @@ const ReportPage = ({ darkMode }) => {
     if (formData.image) data.append("image", formData.image)
 
     try {
-      const response = await fetch("http://localhost:8000/api/disasters/report/", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'}/api/disasters/report/`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -223,6 +230,11 @@ const ReportPage = ({ darkMode }) => {
                       accept="image/*"
                       onChange={handleInputChange}
                     />
+                    {imagePreview && (
+                      <div className="mt-3">
+                        <img src={imagePreview} alt="Preview" className="img-thumbnail" style={{ maxHeight: "200px" }} />
+                      </div>
+                    )}
                   </div>
 
                   <div className="d-grid gap-2">

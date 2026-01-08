@@ -87,9 +87,11 @@ const AuthPage = ({ darkMode, setIsAuthenticated, onLogin }) => {
     if (!validateForm()) return
 
     try {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'
+
       if (isLogin) {
         // LOGIN
-        const res = await axios.post("http://127.0.0.1:8000/api/token/", {
+        const res = await axios.post(`${apiUrl}/api/token/`, {
           username: formData.username,
           password: formData.password,
         })

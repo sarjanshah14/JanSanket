@@ -92,16 +92,19 @@ const VolunteerApplicationPage = ({ darkMode, user }) => {
       };
 
       // eslint-disable-next-line no-unused-vars
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/volunteer/register/",
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'}/api/volunteers/register/`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || errorData.non_field_errors?.[0] || JSON.stringify(errorData) || "Submission failed.");
+      }
 
       alert("✅ Application submitted successfully!");
       navigate("/volunteers");

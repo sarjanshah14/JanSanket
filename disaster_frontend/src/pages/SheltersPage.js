@@ -13,7 +13,7 @@ const SheltersPage = ({ darkMode }) => {
 
 
   useEffect(() => {
-    axios.get("http://127.0.0.1:8000/api/shelters/")
+    axios.get(`${process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'}/api/shelters/`)
       .then((res) => {
         const transformed = res.data.map((shelter) => ({
           ...shelter,
@@ -299,29 +299,29 @@ const SheltersPage = ({ darkMode }) => {
 
                 {/* Photos (mocked) */}
                 {/* Photos */}
-<div className="mt-4">
-  <strong>📸 Photos:</strong>
-  {selectedShelter.images && selectedShelter.images.length > 0 ? (
-    <div className="row mt-2">
-      {selectedShelter.images.map((img) => (
-        <div key={img.id} className="col-6 col-md-3 mb-3">
-          <img
-            src={`http://127.0.0.1:8000${img.image}`}
-            className="img-fluid rounded border"
-            style={{
-              height: "150px",
-              width: "100%",
-              objectFit: "cover",
-            }}
-            alt="Shelter"
-          />
-        </div>
-      ))}
-    </div>
-  ) : (
-    <p className="mt-2">No images available</p>
-  )}
-</div>
+                <div className="mt-4">
+                  <strong>📸 Photos:</strong>
+                  {selectedShelter.images && selectedShelter.images.length > 0 ? (
+                    <div className="row mt-2">
+                      {selectedShelter.images.map((img) => (
+                        <div key={img.id} className="col-6 col-md-3 mb-3">
+                          <img
+                            src={`${process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'}${img.image}`}
+                            className="img-fluid rounded border"
+                            style={{
+                              height: "150px",
+                              width: "100%",
+                              objectFit: "cover",
+                            }}
+                            alt="Shelter"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-2">No images available</p>
+                  )}
+                </div>
 
 
               </div>

@@ -5,7 +5,7 @@ import axios from 'axios';
 import { Spinner, Alert } from 'react-bootstrap';
 
 // Initialize Stripe
-const stripePromise = loadStripe('pk_test_51Rtd171yRBtzWAxgUOmQdUViaHo1srTcLlXy54GbArsUVkXkF49bJWsiJFHKqWy7dADyhttYNACtL7c4ZUSxA5Z300ayMcDTeC');
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
 
 const PricingPage = ({ darkMode }) => {
   const [billingCycle, setBillingCycle] = useState("monthly");
@@ -107,7 +107,7 @@ const PricingPage = ({ darkMode }) => {
 
   const handlePlanSelect = async (plan) => {
     // For free plan, just redirect to signup
-    
+
 
     setSelectedPlan(plan.id);
     setLoading(true);

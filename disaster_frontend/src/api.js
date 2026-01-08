@@ -2,7 +2,7 @@
 import axios from "axios"
 
 const api = axios.create({
-  baseURL: "http://127.0.0.1:8000/api/",
+  baseURL: `${process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'}/api/`,
 })
 
 let isRefreshing = false
@@ -48,7 +48,7 @@ api.interceptors.response.use(
 
       try {
         const refresh = localStorage.getItem("refresh")
-        const res = await axios.post("http://127.0.0.1:8000/api/token/refresh/", { refresh })
+        const res = await axios.post(`${process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'}/api/token/refresh/`, { refresh })
 
         localStorage.setItem("access", res.data.access)
 

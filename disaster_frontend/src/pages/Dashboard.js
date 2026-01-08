@@ -21,14 +21,20 @@ const Dashboard = ({ darkMode }) => {
   const [disasterReports, setDisasterReports] = useState([])
 
   useEffect(() => {
-    axios.get("http://127.0.0.1:8000/api/disasters/")
-      .then((response) => {
-        const sorted = response.data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-        setDisasterReports(sorted)
-      })
-      .catch((error) => {
-        console.error("Error fetching disaster reports:", error)
-      })
+    const fetchDisasters = () => {
+      axios.get(`${process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'}/api/disasters/`)
+        .then((response) => {
+          const sorted = response.data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+          setDisasterReports(sorted)
+        })
+        .catch((error) => {
+          console.error("Error fetching disaster reports:", error)
+        })
+    }
+
+    fetchDisasters()
+    const interval = setInterval(fetchDisasters, 10000) // Poll every 10s
+    return () => clearInterval(interval)
   }, [])
 
   const getSeverityBadge = (severity) => {

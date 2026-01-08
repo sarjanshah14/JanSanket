@@ -27,11 +27,20 @@ const VolunteersPage = ({ darkMode }) => {
      2️⃣ Fetch volunteers from Django API (once, on mount)
   ────────────────────────────────────────────────────────── */
   useEffect(() => {
-    axios
-      .get("http://127.0.0.1:8000/api/volunteers/")
-      .then((res) => setVolunteers(res.data))
-      .catch((err) => console.error("Error fetching volunteers:", err))
-  }, [])
+    const fetchVolunteers = async () => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'}/api/volunteers/`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        setVolunteers(response.data);
+      } catch (err) {
+        console.error("Error fetching volunteers:", err);
+      }
+    };
+    fetchVolunteers();
+  }, []);
 
   /* ──────────────────────────────────────────────────────────
      3️⃣ Static list of roles for the filter dropdown
@@ -237,7 +246,7 @@ const VolunteersPage = ({ darkMode }) => {
                         style={{ width: "60px", height: "60px" }}
                       >
                         <img
-                          src={roleImages[volunteer.role] } // fallback if role not found
+                          src={roleImages[volunteer.role]} // fallback if role not found
                           alt={volunteer.role}
                           style={{ width: "100%", height: "100%", objectFit: "cover" }}
                         />
