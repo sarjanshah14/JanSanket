@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-x#d@+r%)$yev@)6_1=^yxt^8cq
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", ".onrender.com"]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
@@ -164,10 +164,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 # Let's try to interpret user instruction. 
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000",
-    "https://disaster-reporting-frontend.vercel.app",
-]
+
 
 # For now, I will use a helper to allow patterns if needed or just specific known ones + localhost. 
 # But let's stick to user request literal if possible or safe defaults.

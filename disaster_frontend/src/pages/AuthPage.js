@@ -103,7 +103,7 @@ const AuthPage = ({ darkMode, setIsAuthenticated, onLogin }) => {
         navigate("/dashboard")
       } else {
         // SIGNUP
-        const res = await axios.post("http://127.0.0.1:8000/api/register/", {
+        const res = await axios.post(`${apiUrl}/api/register/`, {
           username: formData.username,
           email: formData.email,
           password: formData.password,
