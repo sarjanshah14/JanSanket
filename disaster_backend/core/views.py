@@ -5,6 +5,39 @@ from rest_framework.decorators import api_view,permission_classes
 from .serializers import UserRegisterSerializer,ShelterSerializer,VolunteerSerializer,DisasterSerializer,ContactMessageSerializer,PredictedValuesSerializer
 from django.conf import settings
 from django.http import JsonResponse
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def create_superuser_temp(request):
+    """
+    Temporary view to create a superuser when shell access is not available.
+    Usage: POST /api/create-superuser/ with { "username": "admin", "password": "securepassword", "secret": "temp_secret" }
+    """
+    secret = request.data.get('secret')
+    if secret != "temp_secret_123": # Simple hardcoded secret for this one-off task
+        return Response({"error": "Invalid secret"}, status=status.HTTP_403_FORBIDDEN)
+
+    username = request.data.get('username')
+    password = request.data.get('password')
+    email = request.data.get('email', 'admin@example.com')
+
+    if not username or not password:
+        return Response({"error": "Username and password required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        if User.objects.filter(username=username).exists():
+            user = User.objects.get(username=username)
+            user.set_password(password)
+            user.is_staff = True
+            user.is_superuser = True
+            user.save()
+            return Response({"message": f"User {username} promoted to superuser!"})
+        else:
+            User.objects.create_superuser(username=username, email=email, password=password)
+            return Response({"message": f"Superuser {username} created successfully!"}, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 from .models import Disaster,Shelter,Volunteer,ContactMessage,PredictedValues
 import requests
 import os 
