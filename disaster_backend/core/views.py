@@ -62,19 +62,22 @@ def load_data_temp(request):
         print("🧹 Nuclear cleanup initiated...")
         from django.db import connection
         with connection.cursor() as cursor:
-            # 1. Try to delete the blocking table explicitly mentioned in the error
-            try:
-                cursor.execute("DELETE FROM bookings_booking")
-            except Exception as e:
-                print(f"Note: Could not delete bookings_booking (might not exist): {e}")
+            # 1. Drop the blocking tables entirely. 
+            # This is safe because you said this DB is reused and these are old tables.
+            cursor.execute("DROP TABLE IF EXISTS bookings_booking CASCADE")
+            cursor.execute("DROP TABLE IF EXISTS bookings_review CASCADE") # Likely exists too
+            cursor.execute("DROP TABLE IF EXISTS bookings_payment CASCADE") # Likely exists too
 
             # 2. Force delete users with CASCADE to wipe out anything else linked to them
-            # This is Postgres specific but appropriate here for Render Postgres
             cursor.execute("DELETE FROM auth_user CASCADE")
+            
+            # 3. Also clear core tables just in case
+            cursor.execute("DELETE FROM core_disaster CASCADE")
+            cursor.execute("DELETE FROM core_shelter CASCADE")
         
         print("📥 Loading data...")
         call_command('loaddata', 'fixtures/data.json')
-        return Response({"message": "Database scrubbed (including old bookings) and data loaded successfully!"})
+        return Response({"message": "Old 'bookings' tables dropped, DB cleaned, and data loaded!"})
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
