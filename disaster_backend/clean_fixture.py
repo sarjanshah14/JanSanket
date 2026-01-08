@@ -16,25 +16,33 @@ try:
             data = json.load(f)
 
     new_data = []
-    removed_images_count = 0
-    removed_models_count = 0
+    kept_count = 0
+    removed_count = 0
+
+    # Whitelist of models we actually need to migrate
+    ALLOWED_PREFIXES = ['core.', 'auth.user']
 
     for entry in data:
-        if entry['model'] == 'core.shelterimage':
-            removed_models_count += 1
-            continue
+        model = entry.get('model', '')
         
-        if 'fields' in entry:
-            if 'image' in entry['fields']:
+        # Check if model is in our allow-list
+        if any(model.startswith(prefix) for prefix in ALLOWED_PREFIXES):
+            # Final Safety: Remove 'image' fields if they exist (we don't have the files)
+            if 'fields' in entry and 'image' in entry['fields']:
                 del entry['fields']['image']
-                removed_images_count += 1
-        
-        new_data.append(entry)
+            
+            new_data.append(entry)
+            kept_count += 1
+        else:
+            removed_count += 1
 
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump(new_data, f, indent=2)
 
-    print(f"Fixture cleaned. Removed {removed_models_count} ShelterImage entries and {removed_images_count} image fields.")
+    print(f"Fixture cleaned aggressively.")
+    print(f"Kept: {kept_count} entries (Users + Core App).")
+    print(f"Removed: {removed_count} entries (Admin logs, ContentTypes, Sessions, etc).")
 
 except Exception as e:
     print(f"Error cleaning fixture: {e}")
+
