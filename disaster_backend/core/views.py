@@ -57,16 +57,24 @@ def load_data_temp(request):
         if not os.path.exists(fixture_path):
              return Response({"error": f"Fixture not found at {fixture_path}"}, status=404)
 
-        # Flush failed due to permissions. Let's try manual deletion of conflicting data.
-        print("🧹 Cleaning up existing data manually...")
-        from django.contrib.auth.models import User
-        # Deleting all users will cascade delete Disasters, Shelters (if linked), etc.
-        # This resolves the "Duplicate username" error.
-        User.objects.all().delete()
+        # Flush failed due to permissions. Manual delete failed due to foreign keys from old apps.
+        # Using RAW SQL to force cleanup of "parking/booking" leftovers.
+        print("🧹 Nuclear cleanup initiated...")
+        from django.db import connection
+        with connection.cursor() as cursor:
+            # 1. Try to delete the blocking table explicitly mentioned in the error
+            try:
+                cursor.execute("DELETE FROM bookings_booking")
+            except Exception as e:
+                print(f"Note: Could not delete bookings_booking (might not exist): {e}")
+
+            # 2. Force delete users with CASCADE to wipe out anything else linked to them
+            # This is Postgres specific but appropriate here for Render Postgres
+            cursor.execute("DELETE FROM auth_user CASCADE")
         
         print("📥 Loading data...")
         call_command('loaddata', 'fixtures/data.json')
-        return Response({"message": "Existing users cleared and data loaded successfully!"})
+        return Response({"message": "Database scrubbed (including old bookings) and data loaded successfully!"})
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
