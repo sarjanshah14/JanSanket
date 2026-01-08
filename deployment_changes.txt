@@ -1,0 +1,79 @@
+# Deployment Changes for Render - Front and Back End
+
+## Backend Changes (Django)
+
+### 1. settings.py Modifications
+- Change DEBUG = True to DEBUG = False
+- Change SECRET_KEY to use environment variable: SECRET_KEY = os.getenv('SECRET_KEY')
+- Update ALLOWED_HOSTS to include Render domain: ALLOWED_HOSTS = ["your-render-backend-domain.onrender.com", "localhost", "127.0.0.1"]
+- Update FRONTEND_URL to production: FRONTEND_URL = 'https://your-render-frontend-domain.onrender.com'
+- Change STRIPE_PUBLISHABLE_KEY to environment variable: STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY')
+- Update CORS_ALLOWED_ORIGINS to include production frontend: CORS_ALLOWED_ORIGINS = ["https://your-render-frontend-domain.onrender.com", "http://localhost:3000", "http://127.0.0.1:3000"]
+- Update CSRF_TRUSTED_ORIGINS to include production frontend
+
+### 2. views.py Modifications
+- Change geocode API key to environment variable: key = os.getenv('OPENCAGE_API_KEY')
+- Update Stripe checkout success_url and cancel_url to production URLs
+- Consider moving Stripe price IDs to environment variables or settings
+
+### 3. Database
+- For production, consider using PostgreSQL instead of SQLite (Render supports both)
+- If keeping SQLite, ensure db.sqlite3 is in .gitignore
+
+### 4. Static Files
+- Add whitenoise for serving static files: pip install whitenoise
+- Add to INSTALLED_APPS and MIDDLEWARE
+- Add STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+## Frontend Changes (React)
+
+### 1. api.js Modifications
+- Change baseURL to production backend: baseURL: "https://your-render-backend-domain.onrender.com/api/"
+
+### 2. Build Configuration
+- Ensure build script works for production
+- Add homepage field to package.json if deploying to subdirectory
+
+## Environment Variables Required
+
+### Backend Environment Variables:
+- SECRET_KEY: Django secret key (generate new one for production)
+- STRIPE_SECRET_KEY: Your Stripe secret key
+- STRIPE_PUBLISHABLE_KEY: Your Stripe publishable key
+- OPENCAGE_API_KEY: ee92ecdd73ea4e38b10bd8553e5f0856 (move from hardcoded)
+- DATABASE_URL: If using PostgreSQL (optional, Render provides)
+- DEBUG: False for production
+- DJANGO_SETTINGS_MODULE: backend.settings (if needed)
+
+### Frontend Environment Variables:
+- REACT_APP_BACKEND_URL: https://your-render-backend-domain.onrender.com/api/
+- REACT_APP_STRIPE_PUBLISHABLE_KEY: Your Stripe publishable key (if needed in frontend)
+
+## Stripe Configuration
+- All Stripe product/price IDs are currently hardcoded in views.py
+- Consider moving these to environment variables or database for easier management
+- Current plans: free, shelter-promo, analytics, enterprise, verified-org
+
+## Additional Setup Steps
+1. Create .env file locally with all keys (add to .gitignore)
+2. Update requirements.txt if adding new packages (whitenoise, psycopg2 for PostgreSQL)
+3. Create render.yaml or use Render dashboard for deployment
+4. Set up build commands and start commands in Render
+5. Configure environment variables in Render dashboard
+6. Set up database (SQLite or PostgreSQL)
+7. Run migrations on production
+8. Collect static files
+
+## Files to Create/Modify
+- .env (local environment file)
+- render.yaml (for Render deployment configuration)
+- Update .gitignore to exclude .env and sensitive files
+- Add Procfile if needed (for backend)
+- Update package.json build scripts if needed
+
+## Security Notes
+- Never commit API keys or secret keys to repository
+- Use environment variables for all sensitive data
+- Generate new SECRET_KEY for production
+- Ensure DEBUG=False in production
+- Update all localhost URLs to production domains
