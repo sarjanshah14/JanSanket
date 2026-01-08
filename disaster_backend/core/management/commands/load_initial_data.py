@@ -39,7 +39,22 @@ class Command(BaseCommand):
             # 4. Load Data
             call_command('loaddata', 'fixtures/data.json')
             
-            self.stdout.write(self.style.SUCCESS('🎉 SUCCESS! Data loaded successfully.'))
+            # 5. Restore Admin Access (Create Superuser if missing)
+            self.stdout.write("👤 Checking for Admin user...")
+            if not User.objects.filter(username='admin').exists():
+                self.stdout.write("👤 Creating default superuser 'admin'...")
+                # We use create_superuser with a fixed password so you can log in
+                User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
+                self.stdout.write(self.style.SUCCESS("✅ Superuser 'admin' created with password 'admin123'"))
+            else:
+                self.stdout.write("ℹ️  User 'admin' already exists. Resetting password to 'admin123' to ensure access.")
+                u = User.objects.get(username='admin')
+                u.set_password('admin123')
+                u.is_staff = True
+                u.is_superuser = True
+                u.save()
+
+            self.stdout.write(self.style.SUCCESS('🎉 SUCCESS! Data loaded & Admin ready.'))
 
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'❌ Error: {str(e)}'))
