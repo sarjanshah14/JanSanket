@@ -15,16 +15,22 @@ function NotificationBell() {
         throw new Error(`HTTP error! status: ${response.status} `);
       }
       const data = await response.json();
-      // Assuming the API returns an array of disaster objects
-      // Map them to the notification format
-      const initialNotes = data.map(disaster => ({
-        id: disaster.id,
-        type: disaster.type,
-        address: disaster.address,
-        message: disaster.description, // Assuming 'description' is the message field
-        timestamp: new Date(disaster.created_at), // Assuming 'created_at' is the timestamp
-      }));
-      setNotifications(initialNotes.reverse()); // Display newest first
+
+      // Get dismissed IDs from local storage to prevent showing old ones
+      const dismissedIds = JSON.parse(localStorage.getItem("dismissedNotifications") || "[]");
+
+      // Filter: Only VERIFIED disasters and NOT dismissed
+      const newNotes = data
+        .filter(d => d.is_verified && !dismissedIds.includes(d.id))
+        .map(disaster => ({
+          id: disaster.id,
+          type: disaster.type,
+          address: disaster.address,
+          message: disaster.description,
+          timestamp: new Date(disaster.timestamp || disaster.created_at), // Use timestamp field
+        }));
+
+      setNotifications(newNotes.reverse()); // Display newest first
     } catch (error) {
       console.error("Error fetching initial notifications:", error);
     }
@@ -54,6 +60,13 @@ function NotificationBell() {
 
   const removeNotification = (id) => {
     setNotifications((prev) => prev.filter((note) => note.id !== id));
+
+    // Save to local storage so it doesn't come back on refresh
+    const dismissedIds = JSON.parse(localStorage.getItem("dismissedNotifications") || "[]");
+    if (!dismissedIds.includes(id)) {
+      dismissedIds.push(id);
+      localStorage.setItem("dismissedNotifications", JSON.stringify(dismissedIds));
+    }
   };
 
   const unreadCount = notifications.length;
