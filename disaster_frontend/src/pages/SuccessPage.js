@@ -33,7 +33,7 @@ const SuccessPage = () => {
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.message || 'Network response was not ok');
+          throw new Error(data.error || data.message || `Network response was not ok: ${response.status}`);
         }
 
         if (data.status === 'success') {
@@ -60,7 +60,8 @@ const SuccessPage = () => {
       } catch (err) {
         setState({
           loading: false,
-          error: err.response?.data?.message || 'Payment verification error',
+          loading: false,
+          error: err.message || 'Payment verification error',
           payment: null
         });
       }
