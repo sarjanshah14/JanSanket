@@ -114,7 +114,7 @@ const PricingPage = ({ darkMode }) => {
     setError(null);
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'}/api/create-checkout-session/`, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL || 'https://jansanket-bi8n.onrender.com'}/api/create-checkout-session/`, {
         plan_id: plan.id,
         billing_period: billingCycle,
         customer_email: "customer@example.com" // Replace with actual user email
