@@ -41,19 +41,19 @@ const SuccessPage = () => {
             loading: false,
             error: null,
             payment: {
-              id: response.data.payment_id,
-              amount: response.data.amount,
-              currency: response.data.currency,
-              plan: response.data.plan_id,
-              period: response.data.billing_period,
-              nextBilling: response.data.next_billing_date,
-              status: response.data.payment_status
+              id: data.payment_id,
+              amount: data.amount,
+              currency: data.currency,
+              plan: data.plan_id,
+              period: data.billing_period,
+              nextBilling: data.next_billing_date,
+              status: data.payment_status
             }
           });
         } else {
           setState({
             loading: false,
-            error: response.data.message || 'Payment verification failed',
+            error: data.message || 'Payment verification failed',
             payment: null
           });
         }
