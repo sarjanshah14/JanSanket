@@ -16,18 +16,28 @@ function NotificationBell() {
       }
       const data = await response.json();
 
-      // Get dismissed IDs from local storage to prevent showing old ones
+
+      // Get dismissed IDs from local storage
       const dismissedIds = JSON.parse(localStorage.getItem("dismissedNotifications") || "[]");
 
-      // Filter: Only VERIFIED disasters and NOT dismissed
+      // Filter: Only VERIFIED disasters, NOT dismissed, and created within the last 24 HOURS
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
       const newNotes = data
-        .filter(d => d.is_verified && !dismissedIds.includes(d.id))
+        .filter(d => {
+          if (!d.is_verified) return false;
+          if (dismissedIds.includes(d.id)) return false;
+
+          // Time check
+          const disasterTime = new Date(d.timestamp || d.created_at);
+          return disasterTime > oneDayAgo;
+        })
         .map(disaster => ({
           id: disaster.id,
           type: disaster.type,
           address: disaster.address,
           message: disaster.description,
-          timestamp: new Date(disaster.timestamp || disaster.created_at), // Use timestamp field
+          timestamp: new Date(disaster.timestamp || disaster.created_at),
         }));
 
       setNotifications(newNotes.reverse()); // Display newest first
