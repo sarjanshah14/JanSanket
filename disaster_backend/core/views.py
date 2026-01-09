@@ -249,26 +249,28 @@ def create_checkout_session(request):
                 )
             
             # Define your plans and prices
+            # Define your plans and prices using Environment Variables
             plans = {
                 'free': {
-                    'monthly': 'price_1Rtphq1yRBtzWAxgFFrCCxI2',
-                    'yearly': 'price_1RyehM1yRBtzWAxgUMQhEdQE'
+                    'monthly': os.getenv('STRIPE_PRICE_FREE_MONTHLY', 'price_1Rtphq1yRBtzWAxgFFrCCxI2'),
+                    'yearly': os.getenv('STRIPE_PRICE_FREE_YEARLY', 'price_1RyehM1yRBtzWAxgUMQhEdQE')
                 },
                 'shelter-promo': {
-                    'monthly': 'price_1RtoUE1yRBtzWAxgAQ6pDfeq',
-                    'yearly': 'price_1Ryejd1yRBtzWAxgWBHqxV9G'
+                    'monthly': os.getenv('STRIPE_PRICE_SHELTER_PROMO_MONTHLY', 'price_1RtoUE1yRBtzWAxgAQ6pDfeq'),
+                    'yearly': os.getenv('STRIPE_PRICE_SHELTER_PROMO_YEARLY', 'price_1Ryejd1yRBtzWAxgWBHqxV9G')
                 },
                 'analytics': {
-                    'monthly': 'price_1RtoUk1yRBtzWAxgekYuOdgM',
-                    'yearly': 'price_1RyejB1yRBtzWAxgGfjGX4V4'
+                    'monthly': os.getenv('STRIPE_PRICE_ANALYTICS_MONTHLY', 'price_1RtoUk1yRBtzWAxgekYuOdgM'),
+                    'yearly': os.getenv('STRIPE_PRICE_ANALYTICS_YEARLY', 'price_1RyejB1yRBtzWAxgGfjGX4V4')
                 },
                 'enterprise': {
-                    'monthly': 'price_1RtoVB1yRBtzWAxghL3PHL9R',
-                    'yearly': 'price_1RtoVB1yRBtzWAxghL3PHL9R'
+                    # Enterprise is usually custom/contact sales, but if you have IDs:
+                    'monthly': os.getenv('STRIPE_PRICE_ENTERPRISE_MONTHLY', 'price_1RtoVB1yRBtzWAxghL3PHL9R'),
+                    'yearly': os.getenv('STRIPE_PRICE_ENTERPRISE_YEARLY', 'price_1RtoVB1yRBtzWAxghL3PHL9R')
                 },
                 'verified-org': {
-                    'monthly': 'price_1RtoTB1yRBtzWAxgXWH5GlY1',
-                    'yearly': 'price_1RyeiP1yRBtzWAxgIh4bMtLL'
+                    'monthly': os.getenv('STRIPE_PRICE_VERIFIED_ORG_MONTHLY', 'price_1RtoTB1yRBtzWAxgXWH5GlY1'),
+                    'yearly': os.getenv('STRIPE_PRICE_VERIFIED_ORG_YEARLY', 'price_1RyeiP1yRBtzWAxgIh4bMtLL')
                 }
             }
             
