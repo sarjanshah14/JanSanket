@@ -10,7 +10,7 @@ function NotificationBell() {
   // Function to fetch initial notifications
   const fetchInitialNotifications = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'} /api/disasters / `);
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'}/api/disasters/`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status} `);
       }
