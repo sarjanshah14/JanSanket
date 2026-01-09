@@ -123,21 +123,7 @@ function NotificationBell() {
       </button>
 
       {dropdownOpen && (
-        <div
-          style={{
-            position: "absolute",
-            right: 0,
-            marginTop: "10px",
-            width: "320px",
-            maxHeight: "220px",
-            overflowY: "auto",
-            background: "white",
-            boxShadow: "0 3px 12px rgba(0,0,0,0.15)",
-            borderRadius: "8px",
-            zIndex: 1000,
-            fontSize: "0.9rem",
-          }}
-        >
+        <div className="notification-dropdown">
           {notifications.length === 0 ? (
             <div style={{ padding: "12px", color: "#666" }}>No notifications</div>
           ) : (
