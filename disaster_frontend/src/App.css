@@ -262,30 +262,32 @@
 .disaster-track {
   display: flex;
   flex-wrap: nowrap;
-  animation: scroll 25s linear infinite;
+  /* animation removed - handled by JS for better interaction */
 }
 
-@media (max-width: 768px) {
-  .disaster-track {
-    animation: scroll 6s linear infinite;
-    /* Ultra fast on mobile */
-  }
+/* Custom Scrollbar for the container */
+.disaster-carousel-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.disaster-carousel-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.disaster-carousel-container::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.disaster-carousel-container::-webkit-scrollbar-thumb:hover {
+  background: #999;
 }
 
 .disaster-card {
   flex: 0 0 auto;
   width: 280px;
   margin: 10px;
-}
-
-@keyframes scroll {
-  from {
-    transform: translateX(0);
-  }
-
-  to {
-    transform: translateX(-50%);
-  }
 }
 
 .disaster-description {
