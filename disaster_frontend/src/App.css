@@ -327,3 +327,26 @@
 .bg-dark .btn-report-fab {
   background: linear-gradient(135deg, #ff5e62, #ff9966);
 }
+
+/* Notification Dropdown */
+.notification-dropdown {
+  position: absolute;
+  right: 0;
+  margin-top: 10px;
+  width: 320px;
+  max-height: 220px;
+  overflow-y: auto;
+  background: white;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  z-index: 1000;
+  font-size: 0.9rem;
+}
+
+/* Mobile fix for notification dropdown - align left */
+@media (max-width: 991px) {
+  .notification-dropdown {
+    right: auto;
+    left: 0;
+  }
+}
