@@ -259,6 +259,12 @@
   animation: scroll 25s linear infinite;
 }
 
+@media (max-width: 768px) {
+  .disaster-track {
+    animation: scroll 12s linear infinite; /* Faster on mobile (12s vs 25s) */
+  }
+}
+
 .disaster-card {
   flex: 0 0 auto;
   width: 280px;
