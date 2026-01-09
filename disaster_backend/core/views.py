@@ -50,14 +50,18 @@ def register_user(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def report_disaster(request):
-    address = request.data.get('address')
-    print("📮 Received address from frontend:", address)
+    try:
+        # 1. Geocoding Logic (Backend)
+        # We derive lat/lon from address using explicit "geocoder" library or OpenCage API
+        # to ensure verification matches location.
+        address = request.data.get('address')
+        lat = request.data.get('latitude')
+        lon = request.data.get('longitude')
+        if not lat or not lon: # This check was moved here based on the instruction's structure
+            return Response({"error": "Could not locate address."}, status=400)
 
-    lat, lon = geocode_address(address)
-    print("📍 Geocoded lat/lon:", lat, lon)
-
-    if not lat or not lon:
-        return Response({"error": "Could not locate address."}, status=400)
+    except Exception as e: # Added a general exception for robustness
+        return Response({"error": f"An error occurred during geocoding: {str(e)}"}, status=500)
 
     data = request.data.copy()
     

@@ -91,7 +91,14 @@ const ReportPage = ({ darkMode }) => {
 
       const result = await response.json()
 
+
       if (!response.ok) {
+        if (response.status === 401) {
+          alert("⚠️ Session expired. Please login again.");
+          localStorage.removeItem("token");
+          navigate("/auth");
+          return;
+        }
         console.error(result)
         alert("❌ Submission failed. Please fix errors and try again.")
         return
