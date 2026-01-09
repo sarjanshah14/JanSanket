@@ -29,7 +29,7 @@ const SuccessPage = () => {
       }
 
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000'}/api/verify-payment/?session_id=${sessionId}`);
+        const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://jansanket-bi8n.onrender.com'}/api/verify-payment/?session_id=${sessionId}`);
         const data = await response.json();
 
         if (!response.ok) {
