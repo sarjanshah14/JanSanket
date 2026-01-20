@@ -57,6 +57,9 @@ def report_disaster(request):
         address = request.data.get('address')
         lat = request.data.get('latitude')
         lon = request.data.get('longitude')
+        if not lat or not lon:
+            lat, lon = geocode_address(address)
+
         if not lat or not lon: # This check was moved here based on the instruction's structure
             return Response({"error": "Could not locate address."}, status=400)
 
